@@ -6,13 +6,13 @@
 #include "Fnt.h"
 #include "Console.h"
 
+#include <stdlib.h> // rand/srand
+#include <thread> // time
 
 
 
-#define CHAR_W 100
-#define CHAR_H 60
-#define SPRITE_W 8
-#define SPRITE_H 8
+
+
 
 void RenderConsoleBuffer(ConsoleBuffer* buffer, SDLContext* context, Sprite* sprite) {
 	int w = buffer->width;
@@ -21,26 +21,80 @@ void RenderConsoleBuffer(ConsoleBuffer* buffer, SDLContext* context, Sprite* spr
 		for (int x = 0; x < w; x++) {
 			int color = buffer->GetColor(x, y);
 			char c = buffer->Get(x, y);
-			sprite[color].Blit(CharToFnt(c), x * SPRITE_W, y * SPRITE_H, context);
+			sprite[color].Blit(CharToFnt(c), x * SPRITE_W, y * (SPRITE_H + 2), context);
 		}
 	}
 }
 
 
+void DrawCursor(bool blank, ConsoleBuffer* buffer, Sprite* sprite, SDLContext* context) {
+	Fnt cursorSprite = blank ? Fnt::Blank : Fnt::Cursor;
+	int x = buffer->cursor.x * SPRITE_W;
+	int y = buffer->cursor.y * (SPRITE_H + 2);
+	sprite->Blit(cursorSprite, x, y, context);
+}
+
+
+struct EffectPlayer {
+	SDLContext* context;
+	GameEffect effect;
+	bool isPlaying;
+	double timeLeft;
+	int screenX;
+	int screenY;
+	EffectPlayer() :effect(GameEffect::None), isPlaying(false), timeLeft(0) {}
+};
+
+void StartEffect(EffectPlayer* ep, GameEffect effectToStart) {
+	if (ep->isPlaying || effectToStart == GameEffect::None) { return; }
+	ep->effect = effectToStart;
+	ep->isPlaying = true;
+	SDL_GetWindowPosition(ep->context->window, &(ep->screenX), &(ep->screenY));
+
+	if (effectToStart == GameEffect::ScreenShake) {
+		ep->timeLeft = 800;
+	}
+	
+	
+}
+
+void PlayEffect(EffectPlayer* ep, double deltaTime) {
+	if (ep->effect == GameEffect::None || !ep->isPlaying) { return; }
+	ep->timeLeft -= deltaTime;
+
+	if (ep->timeLeft <= 0) {
+		SDL_SetWindowPosition(ep->context->window, ep->screenX, ep->screenY);
+		ep->isPlaying = false;
+		ep->effect = GameEffect::None;
+		return;
+	}
+
+	int windowX = ep->screenX;
+	int windowY = ep->screenY;
+	windowX += rand() % 20 - 10;
+	windowY += rand() % 20 - 10;
+	SDL_SetWindowPosition(ep->context->window, windowX, windowY);
+}
+
+
+
+
+
 int main(int argc, char* argv[]) {
 	
-	SDLContext context = InitSDL("Goodbye World", CHAR_W * SPRITE_W, CHAR_H * SPRITE_H);
+	srand(time(NULL)); // initialize rng
+
+	SDLContext context = InitSDL("Ludum Dare 45", CHAR_W * SPRITE_W, CHAR_H * SPRITE_H);
 	if (!context.success) {
 		DestroySDLContext(context);
 		SDL_Quit();
 	}
-	printf("InintSDL success");
 
 	Sprite coloredSprites[6];
 	for (int i = 0; i < 6; i++) {
 		coloredSprites[i] = LoadSprite("Assets/font.bmp", &context);
 	}
-	coloredSprites[Color::def].SetColorModulation(123, 123, 123);
+	coloredSprites[Color::def].SetColorModulation(188, 188, 188);
 	coloredSprites[Color::red].SetColorModulation(255, 0, 0);
 	coloredSprites[Color::green].SetColorModulation(0, 255, 0);
 	coloredSprites[Color::blue].SetColorModulation(0, 0, 255);
@@ -67,10 +121,16 @@ int main(int argc, char* argv[]) {
 	consoleBuffer.Init(CHAR_W, CHAR_H);
 	Input inp;
 	DeltaTime dt;
+	EffectPlayer effectPlayer;
+	effectPlayer.context = &context;
+	Timer cursorBlinkTimer;
+	cursorBlinkTimer.speed = 400;
+	bool cursorBlinkSolidState = false;
 
 	// draw one initial time before starting the loop
 	SDL_RenderClear(context.renderer);
 	SDL_RenderPresent(context.renderer);
+	GameInit(&consoleBuffer);
 
 	while(!quit) {
 		while(SDL_PollEvent(&e)) {
@@ -80,14 +140,10 @@ int main(int argc, char* argv[]) {
 				break;
 			}
 
-			inp.num = 0;
 			if (e.type == SDL_KEYDOWN || e.type == SDL_KEYUP) {
 				for (int i = 0; i < mapFromLen; i++) {
 					if (e.key.keysym.sym == mapFrom[i]) {
-						inp.keys[inp.num] = (Key)i;
-						inp.states[inp.num] = e.type == SDL_KEYUP ? KeyState::released : KeyState::down;
-						inp.num++;
-						if (inp.num >= 10) { inp.num = 9; } // prevent overflow
+						inp.AddKey(Key(i), e.type == SDL_KEYUP ? KeyState::released : KeyState::down);
 					}
 					
 				}
@@ -95,46 +151,30 @@ int main(int argc, char* argv[]) {
 		} // end of event polling
 
 		double deltaTime = dt.Update();
-		GameTick(&consoleBuffer, inp, deltaTime);
-		if (!GameNeedsRedraw()) {
+		bool needsRedraw = GameTick(&consoleBuffer, inp, deltaTime);
+
+		inp.ClearKeys();
+
+		// start game effect if applicable!
+		StartEffect(&effectPlayer, GetGameEffectToPlay());
+		PlayEffect(&effectPlayer, deltaTime);
+		
+
+		// update blinking cursor state?
+		bool cursorUpdate = cursorBlinkTimer.CountDown(deltaTime, false);
+		if (cursorUpdate) { 
+			cursorBlinkSolidState = !cursorBlinkSolidState; 
+			needsRedraw = true;
+		}
+
+		if (!needsRedraw) {
 			continue;
 		}
 
 		SDL_RenderClear(context.renderer);
 		RenderConsoleBuffer(&consoleBuffer, &context, coloredSprites);
-		
-		/*
-		ConsoleBuffer buffer;
-		buffer.Init(CHAR_W, CHAR_H);
-		const char* str = "Hej din gamla galosh HEJ HEJ STORA BOKSTAVER";
-		int len = SDL_strlen(str);
-		for (int i = 0; i < len; i++) {
-			buffer.Set(CharToFnt(str[i]), i + 3, 9, Color::def);
-		}
-		buffer.Set(Fnt::Heart, 10, 10, Color::red);
+		DrawCursor(cursorBlinkSolidState, &consoleBuffer, &coloredSprites[Color::def], &context);
 
-		RenderConsoleBuffer(&buffer, &context, coloredSprites);
-
-		Sprite sprite = coloredSprites[Color::green];
-		sprite.Blit(Fnt::Heart, 0, 0, &context);
-		sprite.Blit(1, 8, 0, &context);
-		sprite.Blit(Fnt::A, 16, 0, &context);
-		sprite.Blit(Fnt::a, 24, 0, &context);
-		sprite.Blit(Fnt::Filled, 32, 0, &context);
-		sprite.Blit(Fnt::Dissolve1, 40, 0, &context);
-		sprite.Blit(Fnt::Dissolve2, 48, 0, &context);
-		sprite.Blit(Fnt::Dissolve3, 56, 0, &context);
-
-		sprite.Blit(Fnt::Frame1Vert, 8*5,8*5, &context);
-		sprite.Blit(Fnt::Frame1Vert, 8*7,8*5, &context);
-		sprite.Blit(Fnt::Frame1Horiz, 8*6,8*4, &context);
-		sprite.Blit(Fnt::Frame1Horiz, 8*6,8*6, &context);
-		sprite.Blit(Fnt::Frame1TL, 8*5,8*4, &context);
-		sprite.Blit(Fnt::Frame1TR, 8*5,8*6, &context);
-		sprite.Blit(Fnt::Frame1BL, 8*7,8*4, &context);
-		sprite.Blit(Fnt::Frame1BR, 8*7,8*6, &context);
-		sprite.Blit(Fnt::Heart, 8*6, 8*5, &context);
-		*/
 		SDL_RenderPresent(context.renderer);
 	}
 

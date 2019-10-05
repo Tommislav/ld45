@@ -88,7 +88,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -130,16 +130,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Data.cpp" />
     <ClCompile Include="src\Game.cpp" />
     <ClCompile Include="src\Main.cpp" />
-    <ClCompile Include="src\writer.cpp" />
+    <ClCompile Include="src\Writer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Boilerplate.h" />
     <ClInclude Include="src\Console.h" />
+    <ClInclude Include="src\Data.h" />
     <ClInclude Include="src\Fnt.h" />
     <ClInclude Include="src\Game.h" />
-    <ClInclude Include="src\textengine.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

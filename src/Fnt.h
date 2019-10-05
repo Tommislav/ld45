@@ -127,7 +127,7 @@ enum Fnt {
 	Frame1BR = 217,
 	Frame1TL = 218,
 
-
+	Cursor = 220,
 
 	Aring = 991,
 	Auml = 992,

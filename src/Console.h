@@ -9,16 +9,29 @@ enum Color {
 	purple = 5
 };
 
+struct CCursor {
+	int x;
+	int y;
+};
+
 struct ConsoleBuffer {
 	char buffer[100 * 60];
 	int colors[100 * 60];
 	int width;
 	int height;
+	CCursor cursor;
 
 	void Init(int width, int height) {
 		Clear();
 		this->width = width;
 		this->height = height;
+		this->cursor.x = 0;
+		this->cursor.y = 0;
+	}
+
+	void SetCursor(int x, int y) {
+		cursor.x = x;
+		cursor.y = y;
 	}
 
 	void Set(char val, int x, int y, Color col) {
@@ -51,7 +64,7 @@ struct ConsoleBuffer {
 
 
 
-enum Key {
+enum class Key {
 	none = 0,
 	next = 1,
 	ffwd = 2,
@@ -64,34 +77,65 @@ enum Key {
 
 enum KeyState {
 	invalid = 0,
-	pressed = 1,
-	down = 2,
-	released = 3
+	down = 1,
+	released = 2
 };
 
 struct Input {
-	int num;
-	Key keys[10];
-	KeyState states[10];
+	Key keysDown[10];
+	Key keysUp[10];
+	const int num;
+	
+
+	Input() : num(10) {
+		for (int i = 0; i < num; i++) {
+			keysUp[i] = Key::none;
+			keysDown[i] = Key::none;
+		}
+	}
+
+	void AddKey(Key key, KeyState state) {
+		if (state == KeyState::down) {
+			for (int i = 0; i < num; i++) {
+				if (keysDown[i] == Key::none) {
+					keysDown[i] = key;
+					return;
+				}
+			}
+		}
+		else if (state == KeyState::released) {
+			bool rSet = false;
+			for (int i = 0; i < num; i++) {
+				if (keysDown[i] == key) {
+					keysDown[i] = Key::none;
+				}
+				if (!rSet && keysUp[i] == Key::none) {
+					rSet = true;
+					keysUp[i] = key;
+				}
+			}
+		}
+	}
+
+	void ClearKeys(bool forceDownedKeys=false) {
+		for (int i = 0; i < num; i++) {
+			keysUp[i] = Key::none;
+			if (forceDownedKeys) {
+				keysDown[i] = Key::none;
+			}
+		}
+	}
 
 	bool CheckKey(Key key, KeyState state) {
-		if (num == 0) { return false; }
-		if (num > 10) { num = 10; }
 		for (int i = 0; i < num; i++) {
-			if (keys[i] == key) {
-				if (states[i] == state) { return true; }
-				if (state == KeyState::down) {
-					if (states[i] == KeyState::pressed) { return true; }
-				}
-				return false;
-			}
+			if (state == KeyState::down && keysDown[i] == key) { return true; }
+			if (state == KeyState::released && keysUp[i] == key) { return true; }
 		}
 		return false;
 	}
 
 	bool KeyReleased(Key key) { return CheckKey(key, KeyState::released); }
 	bool KeyDown(Key key) { return CheckKey(key, KeyState::down); }
-	bool KeyPressed(Key key) { return CheckKey(key, KeyState::pressed); }
 };
 
 
