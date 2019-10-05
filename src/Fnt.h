@@ -1,3 +1,5 @@
+#pragma once
+
 enum Fnt {
 	Blank = 0,
 	Face = 1,
@@ -134,8 +136,9 @@ enum Fnt {
 
 
 
-Fnt CharToFnt(const char* c) {
-	switch (*c) {
+Fnt CharToFnt(char c) {
+	switch (c) {
+	case 0:
 	case ' ':
 		return Fnt::Blank;
 
@@ -263,6 +266,6 @@ Fnt CharToFnt(const char* c) {
 
 
 	default:
-		return Fnt::Blank;
+		return (Fnt)c;
 	}
 }

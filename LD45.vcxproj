@@ -130,12 +130,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Game.cpp" />
     <ClCompile Include="src\Main.cpp" />
+    <ClCompile Include="src\writer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Boilerplate.h" />
-    <ClInclude Include="src\TSConsole.h" />
+    <ClInclude Include="src\Console.h" />
     <ClInclude Include="src\Fnt.h" />
+    <ClInclude Include="src\Game.h" />
+    <ClInclude Include="src\textengine.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

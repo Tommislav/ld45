@@ -3,6 +3,19 @@
 #include <SDL2/SDL.h>
 #include <stdio.h>
 
+struct DeltaTime {
+	Uint64 lastTime;
+	double deltaTime;
+
+	DeltaTime() : lastTime(0), deltaTime(0) {}
+	double Update(){
+		Uint64 now = SDL_GetPerformanceCounter();
+		deltaTime = (double)((now - lastTime) * 1000 / (double)SDL_GetPerformanceFrequency());
+		lastTime = now;
+		return deltaTime;
+	}
+};
+
 
 SDL_Rect GetRect(int x, int y, int w, int h) {
 	SDL_Rect r;
@@ -12,6 +25,15 @@ SDL_Rect GetRect(int x, int y, int w, int h) {
 	r.h = h;
 	return r;
 }
+
+SDL_Color GetColor(Uint8 red, Uint8 green, Uint8 blue) {
+	SDL_Color c;
+	c.r = red;
+	c.g = green;
+	c.b = blue;
+	return c;
+}
+
 
 struct SDLContext {
 	SDL_Window* window;
@@ -25,6 +47,7 @@ struct Sprite {
 	SDL_Rect sourceRect;
 	SDL_Rect targetRect;
 	bool success;
+
 	void Blit(int i, int x, int y, SDLContext* context) {
 		if (!this->success) { return; }
 
@@ -38,7 +61,7 @@ struct Sprite {
 		if (texture != nullptr) { SDL_DestroyTexture(texture); }
 		texture = nullptr;
 	}
-	void SetColorModulation(Uint8 r, Uint8 g, Uint8 b) { // r, g, b in span 0-255
+	void SetColorModulation(Uint8 r, Uint8 g, Uint8 b) {
 		SDL_SetTextureColorMod(texture, r, g, b);
 	}
 };
@@ -67,7 +90,6 @@ Sprite LoadSprite(const char* bitmapPath, SDLContext* context) {
 
 	sprite.targetRect = GetRect(0, 0, 8, 8);
 	sprite.sourceRect = GetRect(0, 0, 8, 8);
-
 	sprite.success = true;
 	return sprite;
 }
