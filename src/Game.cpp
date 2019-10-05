@@ -11,6 +11,7 @@ using namespace std;
 const string startID = "Start";
 
 Writer mainWriter;
+Writer optionsWriter;
 Entry* currentEntry;
 
 
@@ -22,6 +23,8 @@ void SetCurrentEntry(string ID) {
 		return;
 	}
 	e->FilterOptions(NULL);
+	optionsWriter.wrSetText(e->GetOptionsLinkText(), START_X, 0, CHAR_W-START_X, CHAR_H);
+	optionsWriter.timer.speed = -1;
 
 	mainWriter.wrSetText(e->text, START_X, START_Y, CHAR_W - START_X, CHAR_H - START_Y);
 	currentEntry = e;
@@ -45,16 +48,27 @@ bool GameTick(ConsoleBuffer* consoleBuffer, Input input, double deltaTime) {
 	mainWriter.fastForward = input.KeyDown(Key::ffwd);
 	bool dirty = mainWriter.wrTick(consoleBuffer, deltaTime);
 
-	for (int i = 0; i < 5; i++) {
-		if (input.KeyReleased(optionKeys[i])) {
-			Option opt = currentEntry->GetOpt(optionKeys[i]);
-			if (opt.valid) {
-				consoleBuffer->Clear();
-				consoleBuffer->SetCursor(START_X, START_Y);
-				SetCurrentEntry(opt.link);
+
+	if (mainWriter.wrAtEnd()) {
+		if (!optionsWriter.wrAtEnd()) {
+			optionsWriter.y = mainWriter.y + 3;
+			optionsWriter.wrTick(consoleBuffer, deltaTime);
+		}
+		
+
+		for (int i = 0; i < currentEntry->numOptionKeys; i++) {
+			Key key = currentEntry->optionKeys[i];
+			if (input.KeyReleased(key)) {
+				Option opt = currentEntry->GetOpt(key);
+				if (opt.valid) {
+					consoleBuffer->Clear();
+					consoleBuffer->SetCursor(START_X, START_Y);
+					SetCurrentEntry(opt.link);
+				}
 			}
 		}
 	}
+	
 
 
 	return dirty;

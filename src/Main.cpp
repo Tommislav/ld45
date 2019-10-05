@@ -94,7 +94,7 @@ int main(int argc, char* argv[]) {
 	for (int i = 0; i < 6; i++) {
 		coloredSprites[i] = LoadSprite("Assets/font.bmp", &context);
 	}
-	coloredSprites[Color::def].SetColorModulation(188, 188, 188);
+	coloredSprites[Color::def].SetColorModulation(180, 180, 180);
 	coloredSprites[Color::red].SetColorModulation(255, 0, 0);
 	coloredSprites[Color::green].SetColorModulation(0, 255, 0);
 	coloredSprites[Color::blue].SetColorModulation(0, 0, 255);

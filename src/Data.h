@@ -20,6 +20,7 @@ struct Option {
 	Key trigger;
 	string text;
 	string link;
+	string triggerText;
 	GameKey showIfKey;
 	GameKey hideIfKey;
 	GameTrigger setTrigger;
@@ -27,7 +28,7 @@ struct Option {
 	bool valid;
 
 	Option() {}
-	Option(string text, string link) :trigger(Key::none), text(text), link(link), showIfKey(GameKey::None), hideIfKey(GameKey::None), setTrigger(GameTrigger::None), setKey(GameKey::None), valid(true) {}
+	Option(string text, string link) :trigger(Key::none), text(text), link(link), triggerText(""), showIfKey(GameKey::None), hideIfKey(GameKey::None), setTrigger(GameTrigger::None), setKey(GameKey::None), valid(true) {}
 };
 
 struct Entry {
@@ -59,6 +60,10 @@ struct Entry {
 		return invalid;
 	}
 
+	// Haha, I put them inside the Entry struct by mistake
+	// and now I use them in Game.cpp X-D
+	// I'm a bum
+	int numOptionKeys = 5;
 	Key optionKeys[5] = {
 		Key::key1,
 		Key::key2,
@@ -68,11 +73,11 @@ struct Entry {
 	};
 
 	string optionLabels[5] = {
-		"[1] ",
-		"[2] ",
-		"[3] ",
-		"[4] ",
-		"[5] "
+		"#cP[1]#cW ",
+		"#cP[2]#cW ",
+		"#cP[3]#cW ",
+		"#cP[4]#cW ",
+		"#cP[5]#cW "
 	};
 
 	// All options have a showIfKey and hideIfKey.
@@ -99,9 +104,20 @@ struct Entry {
 			opt.valid = showFlagIsValid && hideFlagIsValid;
 			if (opt.valid) {
 				opt.trigger = optionKeys[cnt];
+				opt.triggerText = optionLabels[cnt];
 				cnt++;
 			}
 		}
+	}
+
+	string GetOptionsLinkText() {
+		string s = "";
+		for (Option &opt : options) {
+			if (opt.valid) {
+				s += opt.triggerText + opt.text + "#n ";
+			}
+		}
+		return s;
 	}
 };
 
