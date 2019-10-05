@@ -13,7 +13,8 @@ enum class GameTrigger {
 
 enum class GameKey {
 	None = 0,
-	HasGun = 1,
+	Test = 1,
+	Test2 = 2,
 };
 
 struct Option {
@@ -29,6 +30,20 @@ struct Option {
 
 	Option() {}
 	Option(string text, string link) :trigger(Key::none), text(text), link(link), triggerText(""), showIfKey(GameKey::None), hideIfKey(GameKey::None), setTrigger(GameTrigger::None), setKey(GameKey::None), valid(true) {}
+	Option(string text, string link, GameKey showIfKey, GameKey hideIfKey, GameKey setKey, GameTrigger trigger) :trigger(Key::none), text(text), link(link), triggerText(""), showIfKey(showIfKey), hideIfKey(hideIfKey), setTrigger(trigger), setKey(setKey), valid(true) {}
+
+	Option ShowIfKey(GameKey key) {
+		showIfKey = key;
+		return *this;
+	}
+	Option HideIfKey(GameKey key) {
+		hideIfKey = key;
+		return *this;
+	}
+	Option TriggerKey(GameKey key) {
+		setKey = key;
+		return *this;
+	}
 };
 
 struct Entry {
@@ -37,7 +52,7 @@ struct Entry {
 	vector<Option> options;
 	GameKey setKey;
 	Entry() {}
-	Entry(string ID, string text) : ID(ID), text(text), options(NULL), setKey(GameKey::None) {}
+	Entry(string ID, string text, GameKey setKey=GameKey::None) : ID(ID), text(text), options(NULL), setKey(setKey) {}
 
 	Entry AddOptions(Option o1) {
 		options.push_back(o1);
@@ -46,6 +61,31 @@ struct Entry {
 	Entry AddOptions(Option o1, Option o2) {
 		options.push_back(o1);
 		options.push_back(o2);
+		return *this;
+	}
+	Entry AddOptions(Option o1, Option o2, Option o3) {
+		options.push_back(o1);
+		options.push_back(o2);
+		options.push_back(o3);
+		return *this;
+	}
+	Entry AddOptions(Option o1, Option o2, Option o3, Option o4) {
+		options.push_back(o1);
+		options.push_back(o2);
+		options.push_back(o3);
+		options.push_back(o4);
+		return *this;
+	}
+	Entry AddOptions(Option o1, Option o2, Option o3, Option o4, Option o5) {
+		options.push_back(o1);
+		options.push_back(o2);
+		options.push_back(o3);
+		options.push_back(o4);
+		options.push_back(o5);
+		return *this;
+	}
+	Entry TriggerKey(GameKey key) {
+		setKey = key;
 		return *this;
 	}
 
@@ -82,10 +122,7 @@ struct Entry {
 
 	// All options have a showIfKey and hideIfKey.
 	// We need to verify those criterias and 
-	void FilterOptions(GameKey currentGameKeys[]) {
-		int numKeysToCheck = currentGameKeys == NULL ? 0 : (sizeof(currentGameKeys) / sizeof(*currentGameKeys));
-		
-		
+	void FilterOptions(vector<GameKey> currentGameKeys) {
 		int cnt = 0;
 		for (Option &opt : options) {
 			
@@ -96,12 +133,13 @@ struct Entry {
 				showFlagIsValid = false;
 			}
 
-			for (int i = 0; i < numKeysToCheck; i++) {
-				if (currentGameKeys[i] == opt.showIfKey) { showFlagIsValid = true; }
-				if (currentGameKeys[i] == opt.hideIfKey) { hideFlagIsValid = false; }
+			for (GameKey gameKey : currentGameKeys) {
+				if (gameKey == opt.showIfKey) { showFlagIsValid = true; }
+				if (gameKey == opt.hideIfKey) { hideFlagIsValid = false; }
 			}
 
 			opt.valid = showFlagIsValid && hideFlagIsValid;
+
 			if (opt.valid) {
 				opt.trigger = optionKeys[cnt];
 				opt.triggerText = optionLabels[cnt];

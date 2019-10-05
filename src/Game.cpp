@@ -14,7 +14,7 @@ Writer mainWriter;
 Writer optionsWriter;
 Entry* currentEntry;
 
-
+vector<GameKey> currentGameKeys;
 
 void SetCurrentEntry(string ID) {
 	Entry* e = GetEntry(ID);
@@ -22,11 +22,13 @@ void SetCurrentEntry(string ID) {
 		mainWriter.wrSetText("#cR#s0ERROR!!! #cDCould not fetch entry with ID #cR" + startID, 0, 2, CHAR_W, CHAR_H - 2);
 		return;
 	}
-	e->FilterOptions(NULL);
+	e->FilterOptions(currentGameKeys);
 	optionsWriter.wrSetText(e->GetOptionsLinkText(), START_X, 0, CHAR_W-START_X, CHAR_H);
 	optionsWriter.timer.speed = -1;
 
 	mainWriter.wrSetText(e->text, START_X, START_Y, CHAR_W - START_X, CHAR_H - START_Y);
+
+	if (e->setKey != GameKey::None) { currentGameKeys.push_back(e->setKey); }
 	currentEntry = e;
 }
 
@@ -61,6 +63,13 @@ bool GameTick(ConsoleBuffer* consoleBuffer, Input input, double deltaTime) {
 			if (input.KeyReleased(key)) {
 				Option opt = currentEntry->GetOpt(key);
 				if (opt.valid) {
+					if (opt.setTrigger != GameTrigger::None) {
+						// SOMETHING HAPPENS!!!
+					}
+					if (opt.setKey != GameKey::None) {
+						currentGameKeys.push_back(opt.setKey);
+					}
+
 					consoleBuffer->Clear();
 					consoleBuffer->SetCursor(START_X, START_Y);
 					SetCurrentEntry(opt.link);
