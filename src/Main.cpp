@@ -54,8 +54,6 @@ void StartEffect(EffectPlayer* ep, GameEffect effectToStart) {
 	if (effectToStart == GameEffect::ScreenShake) {
 		ep->timeLeft = 800;
 	}
-	
-	
 }
 
 void PlayEffect(EffectPlayer* ep, double deltaTime) {

@@ -11,7 +11,7 @@ enum class GameTrigger {
 	LoseHealth,
 	LoseAmmo,
 	AddAmmo1,
-	AddAmmo3,
+	AddAmmo3SoulMinus1,
 	LoseHealthAndAmmo,
 	LoseSoul,
 
@@ -20,12 +20,13 @@ enum class GameTrigger {
 enum class GameKey {
 	None,
 	Invalid,
-	Test,
-	Test2,
+	CalledMartin,
 	HasGun,
+	HasAmmo,
 	HasBadge,
 	HasFriend,
 	HasLocationOfDaughter,
+	CopKiller,
 
 };
 
@@ -54,6 +55,10 @@ struct Option {
 	}
 	Option TriggerKey(GameKey key) {
 		setKey = key;
+		return *this;
+	}
+	Option TriggerTrigger(GameTrigger trigger) {
+		setTrigger = trigger;
 		return *this;
 	}
 };
@@ -177,6 +182,9 @@ struct Entry {
 				opt.trigger = optionKeys[cnt];
 				opt.triggerText = optionLabels[cnt];
 				cnt++;
+			}
+			else {
+				opt.trigger = Key::none;
 			}
 		}
 	}

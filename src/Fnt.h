@@ -263,6 +263,18 @@ Fnt CharToFnt(char c) {
 		return Fnt::Lt;
 	case '>':
 		return Fnt::Gt;
+	case '’':
+		return Fnt::RightTick;
+	case '“':
+		return Fnt::Quote;
+	case '”':
+		return Fnt::Quote;
+	case '+':
+		return Fnt::Plus;
+	case '-':
+		return Fnt::Dash;
+	case '¤':
+		return Fnt::Blank;
 
 
 	default:

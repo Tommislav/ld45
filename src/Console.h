@@ -146,7 +146,7 @@ struct Timer {
 	double additionalPause;
 	bool onHold;
 
-	Timer() :counter(0), speed(30), fastSpeed(5), additionalPause(0), onHold(false) {}
+	Timer() :counter(0), speed(70), fastSpeed(0), additionalPause(0), onHold(false) {}
 
 	bool CountDown(double deltaTime, bool fastForward) {
 		if (onHold) { return false; }

@@ -35,6 +35,23 @@ struct Writer {
 			x = startX;
 			y++;
 		}
+
+		/*
+	Entry("", "")
+	.AddText(
+		OptionalText("").ShowIfKey().HideIfKey())
+	.AddOptions(
+		Option("", "").HideIfKey().ShowIfKey.TriggerKey(),
+		Option("", "").HideIfKey().ShowIfKey.TriggerKey(),
+		Option("", "").HideIfKey().ShowIfKey.TriggerKey(),
+		Option("", "").HideIfKey().ShowIfKey.TriggerKey()
+	),
+		
+		
+		
+		*/
+
+
 		if (command == 'p') { // pause
 			if (instr == '0') { timer.additionalPause = 100; }
 			else if (instr == '1') { timer.additionalPause = 500; }
@@ -44,12 +61,10 @@ struct Writer {
 		}
 		if (command == 's') { // speed 
 			if (instr == '0') { timer.speed = 5; }
-			else if (instr == '1') { timer.speed = 30; }
-			else if (instr == '2') { timer.speed = 50; }
-			else if (instr == '3') { timer.speed = 80; }
-			else if (instr == '4') { timer.speed = 150; }
-			else if (instr == '5') { timer.speed = 200; }
-			else if (instr == '6') { timer.speed = 250; }
+			else if (instr == '1') { timer.speed = 70; }
+			else if (instr == '2') { timer.speed = 150; }
+			else if (instr == '3') { timer.speed = 200; }
+			else if (instr == '4') { timer.speed = 250; }
 			else if (instr == '9') { timer.speed = -1; }
 		}
 		if (command == 'c') { // color
@@ -61,7 +76,7 @@ struct Writer {
 			else if (instr == 'D') { col = Color::def; }
 		}
 		if (command == 'e') { // effect
-			queuedEffect = IntFromChar(instr);
+			queuedEffect = IntFromChar(instr); // 1=shake, 2=shoot, 3=soul, 4=health
 		}
 		if (command == '>') { // option marker
 			//printAt(instr, writer.x, writer.y, Color::purple);
@@ -84,7 +99,7 @@ struct Writer {
 		}
 
 		if (c == '.') {
-			timer.additionalPause = 500;
+			timer.additionalPause = 1200;
 		}
 
 		buffer->Set(c, x, y, col);
@@ -133,7 +148,7 @@ struct Writer {
 		w = width;
 		h = height;
 		// Runtime scaling does not currently work. Lets not even pretend it does
-		/*
+		
 		int lastSpace = 0;
 		int lastSpaceX = startX;
 		int x = startX;
@@ -159,6 +174,7 @@ struct Writer {
 			}
 		}
 		// re-write all resized text
+		/*
 		int oldPos = pos;
 		pos = 0;
 		for (int i = 0; i < oldPos; i++) {

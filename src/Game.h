@@ -11,7 +11,14 @@
 
 enum class GameEffect {
 	None = 0,
-	ScreenShake = 1
+	ScreenShake = 1,
+	Shoot = 2,
+	LoseSoul = 3,
+	LoseHealth = 4,
+	AddAmmo1 = 5,
+	AddAmmo3 = 6,
+	AddAmmo6 = 7,
+	AddHealth3 = 8
 };
 
 void GameInit(ConsoleBuffer* buffer);

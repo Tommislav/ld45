@@ -7,17 +7,19 @@
 using namespace std;
 
 #define START_X 0
-#define START_Y 2
+#define START_Y 4
 
-const string startID = "Start";
+const string startID = "Intro2";
 
 
 int health = 10;
 int soul = 10;
 int ammo = 0;
+bool isGameOver = false;
 
 Writer mainWriter;
 Writer optionsWriter;
+Writer statusWriter;
 Entry* currentEntry;
 
 list<GameKey> currentGameKeys;
@@ -34,7 +36,9 @@ void SetCurrentEntry(string ID) {
 
 	mainWriter.wrSetText(e->GetText(currentGameKeys), START_X, START_Y, CHAR_W - START_X, CHAR_H - START_Y);
 
-	if (e->setKey != GameKey::None) { currentGameKeys.push_back(e->setKey); }
+	if (e->setKey != GameKey::None) { 
+		currentGameKeys.push_back(e->setKey); 
+	}
 	currentEntry = e;
 }
 
@@ -48,6 +52,8 @@ void RemoveGameKey(GameKey key) {
 
 
 void GameInit(ConsoleBuffer* buffer) {
+	statusWriter.timer.speed = -1;
+	statusWriter.updateCursor = false;
 	buffer->SetCursor(START_X, START_Y);
 	SetCurrentEntry(startID);
 }
@@ -64,8 +70,37 @@ bool GameTick(ConsoleBuffer* consoleBuffer, Input input, double deltaTime) {
 	mainWriter.fastForward = input.KeyDown(Key::ffwd);
 	bool dirty = mainWriter.wrTick(consoleBuffer, deltaTime);
 
+	if (dirty) {
+		string status = "¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤ Health: " + to_string(health) + " ¤¤ Soul: " + to_string(soul) + " ¤¤ Ammo: " + to_string(ammo) + " ¤¤¤¤¤¤¤¤¤";
+		//int len = status.size();
+		//int extra = CHAR_W - len - 2;
+		//for (int i = 0; i < extra; i++) { status += "¤"; }
+		statusWriter.wrSetText(status, 0, 1, CHAR_W, CHAR_H);
+		statusWriter.skipToEnd = true;
+		statusWriter.wrTick(consoleBuffer, 100);
+	}
+
 
 	if (mainWriter.wrAtEnd()) {
+
+		if (isGameOver) { return false; }
+
+		// Game over soul
+		if (soul <= 0) {
+			isGameOver = true;
+			SetCurrentEntry("GameOverSouls");
+			return false;
+		}
+
+		// Game over health
+		if (health <= 0) {
+			isGameOver = true;
+			SetCurrentEntry("GameOverHealth");
+			return false;
+		}
+
+		// Continue
+
 		if (!optionsWriter.wrAtEnd()) {
 			optionsWriter.y = mainWriter.y + 3;
 			optionsWriter.wrTick(consoleBuffer, deltaTime);
@@ -79,6 +114,12 @@ bool GameTick(ConsoleBuffer* consoleBuffer, Input input, double deltaTime) {
 				if (opt.valid) {
 					if (opt.setTrigger != GameTrigger::None) {
 						// SOMETHING HAPPENS!!!
+
+						if (opt.setTrigger == GameTrigger::AddAmmo3SoulMinus1) {
+							ammo += 3;
+							soul -= 1;
+						}
+
 					}
 					if (opt.setKey != GameKey::None) {
 						currentGameKeys.push_back(opt.setKey);
@@ -98,7 +139,41 @@ bool GameTick(ConsoleBuffer* consoleBuffer, Input input, double deltaTime) {
 }
 
 GameEffect GetGameEffectToPlay() {
-	return (GameEffect)mainWriter.wrGetQueuedEffect();
+	GameEffect effect = (GameEffect)mainWriter.wrGetQueuedEffect();
+
+	if (effect == GameEffect::Shoot) {
+		ammo -= 1;
+		if (ammo <= 0) { RemoveGameKey(GameKey::HasAmmo); }
+		effect = GameEffect::ScreenShake;
+	}
+	if (effect == GameEffect::LoseHealth) {
+		health -= 1;
+		effect = GameEffect::ScreenShake;
+	}
+	if (effect == GameEffect::AddHealth3) {
+		health += 3;
+	}
+	if (effect == GameEffect::LoseSoul) {
+		soul -= 1;
+		effect = GameEffect::ScreenShake;
+	}
+	if (effect == GameEffect::AddAmmo1) {
+		ammo += 1;
+		AddGameKey(GameKey::HasAmmo);
+		AddGameKey(GameKey::HasGun);
+	}
+	if (effect == GameEffect::AddAmmo3) {
+		ammo += 3;
+		AddGameKey(GameKey::HasAmmo);
+		AddGameKey(GameKey::HasGun);
+	}
+	if (effect == GameEffect::AddAmmo6) {
+		ammo += 6;
+		AddGameKey(GameKey::HasAmmo);
+		AddGameKey(GameKey::HasGun);
+	}
+
+	return effect;
 }
 
 
