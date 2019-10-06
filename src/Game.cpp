@@ -26,10 +26,19 @@ void SetCurrentEntry(string ID) {
 	optionsWriter.wrSetText(e->GetOptionsLinkText(), START_X, 0, CHAR_W-START_X, CHAR_H);
 	optionsWriter.timer.speed = -1;
 
-	mainWriter.wrSetText(e->text, START_X, START_Y, CHAR_W - START_X, CHAR_H - START_Y);
+	mainWriter.wrSetText(e->GetText(currentGameKeys), START_X, START_Y, CHAR_W - START_X, CHAR_H - START_Y);
 
 	if (e->setKey != GameKey::None) { currentGameKeys.push_back(e->setKey); }
 	currentEntry = e;
+}
+
+void AddGameKey(GameKey key) {
+	for (GameKey entry : currentGameKeys) {
+		if (entry == key) {
+			return;
+		}
+	}
+	currentGameKeys.push_back(key);
 }
 
 

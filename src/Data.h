@@ -46,13 +46,30 @@ struct Option {
 	}
 };
 
+struct OptionalText {
+	string text;
+	GameKey showIfKey;
+	GameKey hideIfKey;
+	OptionalText() {}
+	OptionalText(string text) : text(text), showIfKey(GameKey::None), hideIfKey(GameKey::None) {}
+	OptionalText ShowIfKey(GameKey key) {
+		showIfKey = key;
+		return *this;
+	}
+	OptionalText HideIfKey(GameKey key) {
+		hideIfKey = key;
+		return *this;
+	}
+};
+
 struct Entry {
 	string ID;
 	string text;
+	vector<OptionalText> optionalTexts;
 	vector<Option> options;
 	GameKey setKey;
 	Entry() {}
-	Entry(string ID, string text, GameKey setKey=GameKey::None) : ID(ID), text(text), options(NULL), setKey(setKey) {}
+	Entry(string ID, string text, GameKey setKey=GameKey::None) : ID(ID), text(text), setKey(setKey) {}
 
 	Entry AddOptions(Option o1) {
 		options.push_back(o1);
@@ -82,6 +99,10 @@ struct Entry {
 		options.push_back(o3);
 		options.push_back(o4);
 		options.push_back(o5);
+		return *this;
+	}
+	Entry AddText(OptionalText extraText) {
+		optionalTexts.push_back(extraText);
 		return *this;
 	}
 	Entry TriggerKey(GameKey key) {
@@ -146,6 +167,32 @@ struct Entry {
 				cnt++;
 			}
 		}
+	}
+
+	string GetText(vector<GameKey> currentGameKeys) {
+		if (optionalTexts.size() == 0) {
+			return text;
+		}
+
+		string s = text;
+		for (OptionalText& extra : optionalTexts) {
+			bool showFlagIsValid = true;
+			bool hideFlagIsValid = true;
+
+			if (extra.showIfKey != GameKey::None) {
+				showFlagIsValid = false;
+			}
+
+			for (GameKey gameKey : currentGameKeys) {
+				if (gameKey == extra.showIfKey) { showFlagIsValid = true; }
+				if (gameKey == extra.hideIfKey) { hideFlagIsValid = false; }
+			}
+
+			if (showFlagIsValid && hideFlagIsValid) {
+				s += extra.text;
+			}
+		}
+		return s;
 	}
 
 	string GetOptionsLinkText() {
