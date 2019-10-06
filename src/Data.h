@@ -3,6 +3,7 @@
 #include "Console.h"
 #include <string>
 #include <vector>
+#include <list>
 using namespace std;
 
 enum class GameTrigger {
@@ -12,9 +13,10 @@ enum class GameTrigger {
 };
 
 enum class GameKey {
-	None = 0,
-	Test = 1,
-	Test2 = 2,
+	None,
+	Invalid,
+	Test,
+	Test2,
 };
 
 struct Option {
@@ -143,7 +145,7 @@ struct Entry {
 
 	// All options have a showIfKey and hideIfKey.
 	// We need to verify those criterias and 
-	void FilterOptions(vector<GameKey> currentGameKeys) {
+	void FilterOptions(list<GameKey> currentGameKeys) {
 		int cnt = 0;
 		for (Option &opt : options) {
 			
@@ -169,7 +171,7 @@ struct Entry {
 		}
 	}
 
-	string GetText(vector<GameKey> currentGameKeys) {
+	string GetText(list<GameKey> currentGameKeys) {
 		if (optionalTexts.size() == 0) {
 			return text;
 		}

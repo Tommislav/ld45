@@ -178,6 +178,11 @@ int main(int argc, char* argv[]) {
 		SDL_RenderPresent(context.renderer);
 	}
 
+	// DESTROY
+	for (int i = 0; i < 6; i++) {
+		coloredSprites[i].Destroy();
+	}
+
 	DestroySDLContext(context);
 	SDL_Quit();
 	return 0;

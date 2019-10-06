@@ -3,6 +3,7 @@
 #include "Game.h"
 #include "Data.h"
 #include <string>
+#include <list>
 using namespace std;
 
 #define START_X 0
@@ -14,7 +15,7 @@ Writer mainWriter;
 Writer optionsWriter;
 Entry* currentEntry;
 
-vector<GameKey> currentGameKeys;
+list<GameKey> currentGameKeys;
 
 void SetCurrentEntry(string ID) {
 	Entry* e = GetEntry(ID);
@@ -33,12 +34,11 @@ void SetCurrentEntry(string ID) {
 }
 
 void AddGameKey(GameKey key) {
-	for (GameKey entry : currentGameKeys) {
-		if (entry == key) {
-			return;
-		}
-	}
 	currentGameKeys.push_back(key);
+}
+
+void RemoveGameKey(GameKey key) {
+	currentGameKeys.remove(key);
 }
 
 
