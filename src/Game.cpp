@@ -11,6 +11,11 @@ using namespace std;
 
 const string startID = "Start";
 
+
+int health = 10;
+int soul = 10;
+int ammo = 0;
+
 Writer mainWriter;
 Writer optionsWriter;
 Entry* currentEntry;

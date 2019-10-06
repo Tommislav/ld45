@@ -7,9 +7,14 @@
 using namespace std;
 
 enum class GameTrigger {
-	None = 0,
-	LoseHealth = 1,
-	LoseAmmo = 2,
+	None,
+	LoseHealth,
+	LoseAmmo,
+	AddAmmo1,
+	AddAmmo3,
+	LoseHealthAndAmmo,
+	LoseSoul,
+
 };
 
 enum class GameKey {
@@ -17,6 +22,11 @@ enum class GameKey {
 	Invalid,
 	Test,
 	Test2,
+	HasGun,
+	HasBadge,
+	HasFriend,
+	HasLocationOfDaughter,
+
 };
 
 struct Option {
