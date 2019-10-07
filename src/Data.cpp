@@ -1,6 +1,7 @@
-#include "Data.h"
 #include <string>
 #include <vector>
+#include "Data.h"
+
 using namespace std;
 
 
@@ -136,7 +137,7 @@ Entry entries[] = {
 		Option("Continue", "LazloAtkUnarmed2")
 	),
 
-	Entry("LazloBadge", "I show him the badge and his smile goes away.#p1 He looks suspiciously at me.#n #n “All right! Fine!”#p1 he says and tosses me a handgun. #p2Loaded with 6 bullets.#p2 “Get out of here you piece of shit”.")
+	Entry("LazloBadge1", "I show him the badge and his smile goes away.#p1 He looks suspiciously at me.#n #n “All right! Fine!”#p1 he says and tosses me a handgun. #p2Loaded with 6 bullets.#p2 “Get out of here you piece of shit”.")
 	.AddOptions(
 		Option("Lets get back home", "Apartment2")
 	),
@@ -193,17 +194,17 @@ Entry entries[] = {
 		Option("Continue", "GetBadgeCell1")
 	),
 
-	Entry("GetBadgeBegFight1", "#e4#p3She hits me right in the face. It hurts.")
+	Entry("GetBadgeBegFight1", "She hits me right in the face#e4.#p3 It hurts.")
 	.AddOptions(
 		Option("Hit her back", "GetBadgeBegFight2"),
-		Option("Shoot her (ammo -1, soul -1)", "GetBadgeBegShoot2"),
+		Option("Shoot her (ammo -1, soul -1)", "GetBadgeBegShoot2").ShowIfKey(GameKey::HasAmmo),
 		Option("Give up", "GetBadgeCell1")
 	),
 
-	Entry("GetBadgeBegFight2", "#e1#p3I kick her in the stomach. She grunts but she takes it.")
+	Entry("GetBadgeBegFight2", "I kick her in the stomach#e1.#p3 She grunts but she takes it.")
 	.AddOptions(
 		Option("Keep fighting (health -1)", "GetBadgeBegFight1"),
-		Option("Shoot her (ammo -1, soul -1)", "GetBadgeBegShoot2"),
+		Option("Shoot her (ammo -1, soul -1)", "GetBadgeBegShoot2").ShowIfKey(GameKey::HasAmmo),
 		Option("Give up", "GetBadgeCell1")
 	),
 
@@ -219,7 +220,7 @@ Entry entries[] = {
 		Option("Continue", "GetBadgeCell3")
 	),
 
-	Entry("GetBadgeCells2B", "“Suit yourself” he says and puts the pill back into his pocket.#p2 Then he looks up.#p3 “All right, let’s get out of here!”")
+	Entry("GetBadgeCell2B", "“Suit yourself” he says and puts the pill back into his pocket.#p2 Then he looks up.#p3 “All right, let’s get out of here!”")
 	.AddOptions(
 		Option("Continue", "GetBadgeCell3")
 	),
@@ -311,6 +312,22 @@ Entry entries[] = {
 	Entry("GameOverHealth", "Blood is bubbling out of my body and I fall over, unable to move. Is this it? This cannot be it! I still have work to do.#n #n But it’s getting hard to breathe, and my vision blurs.As the world fades I hear Sophia crying.But she isn’t crying because of her daddy is dying.She is crying over what her daddy did..."),
 };
 
+
+string ValidateEntryLinks() {
+	string s = "";
+	int len = (sizeof(entries) / sizeof(*entries));
+	for (int i = 0; i < len; i++) {
+		Entry &e = entries[i];
+		int numOpts = e.options.size();
+		for (int ii = 0; ii < numOpts; ii++) {
+			Entry *check = GetEntry(e.options[ii].link);
+			if (check == NULL) {
+				s += "Entry: " + e.ID + " invalid link: " + e.options[ii].link + "\n";
+			}
+		}
+	}
+	return s;
+}
 
 
 

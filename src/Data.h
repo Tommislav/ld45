@@ -227,3 +227,4 @@ struct Entry {
 };
 
 Entry* GetEntry(string ID);
+string ValidateEntryLinks();

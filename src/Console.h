@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdio.h>
+
 enum Color { 
 	def = 0, 
 	red = 1, 
@@ -140,6 +142,7 @@ struct Input {
 
 
 struct Timer {
+	bool shouldDebug;
 	double speed;
 	double fastSpeed;
 	double counter;
@@ -149,11 +152,17 @@ struct Timer {
 	Timer() :counter(0), speed(70), fastSpeed(0), additionalPause(0), onHold(false) {}
 
 	bool CountDown(double deltaTime, bool fastForward) {
+		
 		if (onHold) { return false; }
 		if (!fastForward && additionalPause > 0) { additionalPause -= deltaTime; return false; }
 		if (counter > 0) {
 			counter -= deltaTime;
 		}
+
+		if (shouldDebug) {
+			printf("deltaTime: %f, counter: %f\n", deltaTime, counter);
+		}
+
 		if (counter <= 0) {
 			counter = fastForward ? fastSpeed : speed;
 			return true;

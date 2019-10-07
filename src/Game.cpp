@@ -9,7 +9,7 @@ using namespace std;
 #define START_X 0
 #define START_Y 4
 
-const string startID = "Intro2";
+const string startID = "GetBadgeBeg1";
 
 
 int health = 10;
@@ -52,8 +52,17 @@ void RemoveGameKey(GameKey key) {
 
 
 void GameInit(ConsoleBuffer* buffer) {
+	/*
+	string valid = ValidateEntryLinks();
+	mainWriter.wrSetText(valid, 0, 0, CHAR_W, CHAR_H);
+	mainWriter.skipToEnd = true;
+	mainWriter.wrTick(buffer, 100);
+	return;
+	*/
 	statusWriter.timer.speed = -1;
 	statusWriter.updateCursor = false;
+	mainWriter.timer.fastSpeed = 2;
+	mainWriter.timer.shouldDebug = true;
 	buffer->SetCursor(START_X, START_Y);
 	SetCurrentEntry(startID);
 }
@@ -68,6 +77,12 @@ Key optionKeys[5] = {
 
 bool GameTick(ConsoleBuffer* consoleBuffer, Input input, double deltaTime) {
 	mainWriter.fastForward = input.KeyDown(Key::ffwd);
+
+	if (mainWriter.fastForward) {
+		int a = 0;
+		a++;
+	}
+
 	bool dirty = mainWriter.wrTick(consoleBuffer, deltaTime);
 
 	if (dirty) {
@@ -75,7 +90,7 @@ bool GameTick(ConsoleBuffer* consoleBuffer, Input input, double deltaTime) {
 		//int len = status.size();
 		//int extra = CHAR_W - len - 2;
 		//for (int i = 0; i < extra; i++) { status += "¤"; }
-		statusWriter.wrSetText(status, 0, 1, CHAR_W, CHAR_H);
+		statusWriter.wrSetText(status, 0, 1, CHAR_W, 1);
 		statusWriter.skipToEnd = true;
 		statusWriter.wrTick(consoleBuffer, 100);
 	}
@@ -132,8 +147,6 @@ bool GameTick(ConsoleBuffer* consoleBuffer, Input input, double deltaTime) {
 			}
 		}
 	}
-	
-
 
 	return dirty;
 }
