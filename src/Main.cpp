@@ -94,8 +94,8 @@ int main(int argc, char* argv[]) {
 	}
 	coloredSprites[Color::def].SetColorModulation(180, 180, 180);
 	coloredSprites[Color::red].SetColorModulation(255, 0, 0);
-	coloredSprites[Color::green].SetColorModulation(140, 250, 140);
-	coloredSprites[Color::blue].SetColorModulation(0, 0, 255);
+	coloredSprites[Color::green].SetColorModulation(130, 250, 130);
+	coloredSprites[Color::blue].SetColorModulation(0, 255, 255);
 	coloredSprites[Color::white].SetColorModulation(255, 255, 255);
 	coloredSprites[Color::purple].SetColorModulation(255, 0, 255);
 

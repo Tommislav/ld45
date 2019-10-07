@@ -9,7 +9,7 @@ using namespace std;
 #define START_X 0
 #define START_Y 4
 
-const string startID = "GetBadgeBeg1";
+const string startID = "Intro1";
 
 
 int health = 10;
@@ -61,7 +61,7 @@ void GameInit(ConsoleBuffer* buffer) {
 	*/
 	statusWriter.timer.speed = -1;
 	statusWriter.updateCursor = false;
-	mainWriter.timer.fastSpeed = 2;
+	mainWriter.timer.fastSpeed = 1;
 	mainWriter.timer.shouldDebug = true;
 	buffer->SetCursor(START_X, START_Y);
 	SetCurrentEntry(startID);

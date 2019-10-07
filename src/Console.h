@@ -160,7 +160,7 @@ struct Timer {
 		}
 
 		if (shouldDebug) {
-			printf("deltaTime: %f, counter: %f\n", deltaTime, counter);
+			//printf("deltaTime: %f, counter: %f\n", deltaTime, counter);
 		}
 
 		if (counter <= 0) {
